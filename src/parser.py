@@ -141,13 +141,10 @@ class Parser:
     def getSetences(self, ast):
         sentences = []
         if ast[0] == 'sentences':
-            i = 1
             for tree in ast[1]:
-                sys.stderr.write(str(i) + '/' + str(len(ast[1])) + '\n')
                 leaves  = []
                 self.calculateSetenceLeaves(tree, leaves)
                 sentences.append(leaves)
-                i = i+1
         else: # Error
             sys.stderr.write('[ERRO]: ast param has a invalid structure. Root got is \'' + str(ast[0]) + '\' instead \'sentences\'.\n')
             quit()
