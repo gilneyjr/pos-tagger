@@ -126,18 +126,71 @@ class Parser:
         # sentences     <- sentence+ EOF
         # sentence      <- LPAR tree RPAR
         # tree          <- LPAR tag content RPAR
-        # content       <- word / tree+
+        # content       <- word | tree+
         # tag           <- ID
         # word          <- ID
         # ----------------------------------
 
-        print("Generating tokens...")
+        # Generating tokens
         tokens = self.tokenize(file)
 
-        print("Parsing...")
-        self.sentences(tokens)
+        # Parsing
+        ast, _ =  self.sentences(tokens)
+        return ast
 
-        print("OK")
+    def getSetences(self, ast):
+        sentences = []
+        if ast[0] == 'sentences':
+            i = 1
+            for tree in ast[1]:
+                sys.stderr.write(str(i) + '/' + str(len(ast[1])) + '\n')
+                leaves  = []
+                self.calculateSetenceLeaves(tree, leaves)
+                sentences.append(leaves)
+                i = i+1
+        else: # Error
+            sys.stderr.write('[ERRO]: ast param has a invalid structure. Root got is \'' + str(ast[0]) + '\' instead \'sentences\'.\n')
+            quit()
+        return sentences
+    
+    def calculateSetenceLeaves(self, ast, leaves):
+        if ast[0] == 'tree':
+            tag = ast[1][0]
+            content = ast[1][1]
+
+            if content[0] == 'word':
+                leaves.append( (tag[1], content[1]) )
+            else:
+                self.calculateSetenceLeaves(content, leaves)
+        elif ast[0] == 'content':
+            for tree in ast[1]:
+                self.calculateSetenceLeaves(tree, leaves)
+        else: # Error
+            sys.stderr.write('[ERRO]: ast param has a invalid structure. Type got is ' + str(ast[0]))
+            quit()
+
+    # def getLeaves(self, ast):
+    #     if ast[0] == 'sentences':
+    #         leaves = []
+    #         for tree in ast[1]:
+    #             leaves = leaves + self.getLeaves(tree)
+    #         return leaves
+    #     elif ast[0] == 'tree':
+    #         tag = ast[1][0]
+    #         content = ast[1][1]
+
+    #         if content[0] == 'word':
+    #             return [ (tag[1], content[1]) ]
+    #         else:
+    #             return self.getLeaves(content)
+    #     elif ast[0] == 'content':
+    #         leaves = []
+    #         for tree in ast[1]:
+    #             leaves = leaves + self.getLeaves(tree)
+    #         return leaves
+    #     else: # Error
+    #         print('[ERRO]: ast param has a invalid structure. Type got is ' + str(ast[0]))
+    #         quit()
 
 if __name__ == '__main__':
     if len(sys.argv) < 2:
@@ -145,4 +198,13 @@ if __name__ == '__main__':
         quit()
 
     parser = Parser()
-    parser.parse(sys.argv[1])
+    # print('Parsing...')
+    sys.stderr.write('Parsing...\n')
+    ast = parser.parse(sys.argv[1])
+
+    # print('Getting leaves...')
+    sys.stderr.write('Getting sentences...\n')
+    for sentence in parser.getSetences(ast):
+        for leaf in sentence:
+            print(str(leaf[0]) + ' ' + str(leaf[1]))
+        print('')
