@@ -138,7 +138,7 @@ class Parser:
         ast, _ =  self.sentences(tokens)
         return ast
 
-    def getSetences(self, ast):
+    def getSentences(self, ast):
         sentences = []
         if ast[0] == 'sentences':
             for tree in ast[1]:
@@ -166,29 +166,6 @@ class Parser:
             sys.stderr.write('[ERRO]: ast param has a invalid structure. Type got is ' + str(ast[0]))
             quit()
 
-    # def getLeaves(self, ast):
-    #     if ast[0] == 'sentences':
-    #         leaves = []
-    #         for tree in ast[1]:
-    #             leaves = leaves + self.getLeaves(tree)
-    #         return leaves
-    #     elif ast[0] == 'tree':
-    #         tag = ast[1][0]
-    #         content = ast[1][1]
-
-    #         if content[0] == 'word':
-    #             return [ (tag[1], content[1]) ]
-    #         else:
-    #             return self.getLeaves(content)
-    #     elif ast[0] == 'content':
-    #         leaves = []
-    #         for tree in ast[1]:
-    #             leaves = leaves + self.getLeaves(tree)
-    #         return leaves
-    #     else: # Error
-    #         print('[ERRO]: ast param has a invalid structure. Type got is ' + str(ast[0]))
-    #         quit()
-
 if __name__ == '__main__':
     if len(sys.argv) < 2:
         print('[ERROR]: No file was passed as argument')
@@ -201,7 +178,7 @@ if __name__ == '__main__':
 
     # print('Getting leaves...')
     sys.stderr.write('Getting sentences...\n')
-    for sentence in parser.getSetences(ast):
+    for sentence in parser.getSentences(ast):
         for leaf in sentence:
             print(str(leaf[0]) + ' ' + str(leaf[1]))
         print('')
