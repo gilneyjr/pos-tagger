@@ -60,19 +60,26 @@ class Parser:
 
 
     def sentence(self, tokens, index):
-        # sentence      <- LPAR tree RPAR
+        # sentence      <- LPAR sentence RPAR | tree
         i = index
 
-        # LPAR
-        _, i = self.matchToken('LPAR', tokens, i)
+        # sentence      <- LPAR sentence RPAR
+        if tokens[index][1] == 'LPAR' and tokens[index+1][1] != 'ID':
+            # LPAR
+            _, i = self.matchToken('LPAR', tokens, i)
 
-        # tree
-        tree, i = self.tree(tokens, i)
+            # tree
+            tree, i = self.sentence(tokens, i)
 
-        # RPAR
-        _, i = self.matchToken('RPAR', tokens, i)
+            # RPAR
+            _, i = self.matchToken('RPAR', tokens, i)
 
-        return tree, i
+            return tree, i
+        # sentence      <- tree
+        else:
+            # tree
+            tree, i = self.tree(tokens, i)
+            return tree, i
 
     def tree(self, tokens, index=0):
         # tree          <- LPAR tag content RPAR
@@ -124,7 +131,7 @@ class Parser:
     def parse(self, file):
         # ---- Grammar ---------------------
         # sentences     <- sentence+ EOF
-        # sentence      <- LPAR tree RPAR
+        # sentence      <- LPAR sentence RPAR | tree
         # tree          <- LPAR tag content RPAR
         # content       <- word | tree+
         # tag           <- ID
@@ -173,11 +180,11 @@ if __name__ == '__main__':
 
     parser = Parser()
     # print('Parsing...')
-    sys.stderr.write('Parsing...\n')
+    # sys.stderr.write('Parsing...\n')
     ast = parser.parse(sys.argv[1])
 
     # print('Getting leaves...')
-    sys.stderr.write('Getting sentences...\n')
+    # sys.stderr.write('Getting sentences...\n')
     for sentence in parser.getSentences(ast):
         for leaf in sentence:
             print(str(leaf[0]) + ' ' + str(leaf[1]))
